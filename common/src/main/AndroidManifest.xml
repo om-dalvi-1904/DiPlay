@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CONNECTED_DEVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PLAYBACK" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Optional: diagnostic reports in the visible Downloads/DiPlay folder on Android 9.
          Android 10+ needs no permission for this, so it is never requested there. -->
@@ -69,7 +70,7 @@
             </intent-filter>
         </activity>
         <service android:name="com.shilapi.xcertplay.DiPlaySessionService"
-            android:exported="false" android:foregroundServiceType="connectedDevice|microphone|location" />
+            android:exported="false" android:foregroundServiceType="connectedDevice|microphone|location|mediaPlayback" />
 
         <activity
             android:name="com.shilapi.xcertplay.CarPlayHostActivity"

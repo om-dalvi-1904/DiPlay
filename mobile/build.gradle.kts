@@ -26,6 +26,10 @@ android {
     localAuthenticationAssets?.let { sourceSets.getByName("main").assets.srcDir(it) }
 
     signingConfigs {
+        getByName("debug") {
+            enableV1Signing = true
+            enableV2Signing = true
+        }
         create("release") {
             storeFile = file(
                 providers.environmentVariable("ANDROID_KEYSTORE_PATH")

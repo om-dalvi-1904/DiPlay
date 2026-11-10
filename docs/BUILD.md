@@ -106,6 +106,26 @@ Check that Gradle reports `BUILD SUCCESSFUL`.
 For the complete CI procedure, see [the Android workflow](../.github/workflows/android.yml).
 That workflow also checks and builds the `home` and `maphost` applications.
 
+## Build and download from GitHub Actions
+
+The Android workflow builds the main debug APK and uploads it as the
+`DiPlay-source-debug-apk` artifact.
+
+1. Open the repository's **Actions** tab and select **Android checks**.
+2. Select **Run workflow** and choose the branch you want to build.
+3. When the run succeeds, download **DiPlay-source-debug-apk** from its
+   **Artifacts** section. Extract the downloaded artifact ZIP, then install
+   the `mobile-debug.apk` inside it (not the ZIP or GitHub's source-code ZIP).
+
+This is the same source-only APK described above: it has the `.hudtest`
+application ID and does not include runtime authentication assets, so it
+cannot establish a standalone CarPlay connection without those assets.
+The workflow verifies APK signatures and confirms the package metadata and
+ARM native libraries before uploading it. If Android still reports that
+the package cannot be parsed, check that the APK file was fully downloaded and
+extracted from the Actions artifact; changing the Android target SDK does not
+repair a truncated or incorrectly downloaded APK.
+
 ## Build a standalone car-test APK
 
 Prepare an external directory with these runtime authentication files:
