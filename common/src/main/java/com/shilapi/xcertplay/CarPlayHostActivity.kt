@@ -453,6 +453,7 @@ open class CarPlayHostActivity : ComponentActivity() {
     private var externalActivityInProgress = false
     private var sink: AndroidMediaSink? = null
     private var controller: CarPlayController? = null
+    private var mainFrameReadySession: AirPlaySession? = null
     private val videoSurfaceOwner = CarPlayVideoSurfaceOwner<Surface>(
         detach = { surface ->
             sink?.clearSurface(SCREEN_TYPE_MAIN, surface)
@@ -1351,7 +1352,9 @@ open class CarPlayHostActivity : ComponentActivity() {
         else -> false
     }
 
-    private fun clusterOutputReady(): Boolean = activeAirPlaySession?.hasRenderedMainFrame == true &&
+    private fun clusterOutputReady(): Boolean = activeAirPlaySession?.let {
+        it.hasRenderedMainFrame || mainFrameReadySession === it
+    } == true &&
         !isDestroyed && !handshakeResetInProgress && !shuttingDown.get()
 
     private fun ensureClusterPresentation() {
@@ -5363,6 +5366,7 @@ open class CarPlayHostActivity : ComponentActivity() {
                         return@runOnUiThread
                     }
                     activeAirPlaySession = session
+                    mainFrameReadySession = session.takeIf { it.hasRenderedMainFrame }
                     if (!session.hasRenderedMainFrame) clusterSurface?.let { sink?.clearSurface(SCREEN_TYPE_ALT, it) }
                     val pending = pendingIphoneCornerMask
                     if (pending?.first === session) {
@@ -5391,6 +5395,7 @@ open class CarPlayHostActivity : ComponentActivity() {
             override fun onVideoFrameRendered(session: AirPlaySession) {
                 runOnUiThread {
                     if (controllerGeneration != restartGeneration || activeAirPlaySession !== session || shuttingDown.get()) return@runOnUiThread
+                    mainFrameReadySession = session
                     val firstFrame = startupRetryBudget.firstFrame(session, android.os.SystemClock.elapsedRealtime())
                     if (firstFrame) appendLog("Main video first frame rendered; cluster output may start")
                     ensureClusterPresentation()
@@ -5416,6 +5421,7 @@ open class CarPlayHostActivity : ComponentActivity() {
                     if (controllerGeneration != restartGeneration || startupRetryStopped) return@runOnUiThread
                     startupRetryBudget.disconnected()
                     activeAirPlaySession = null
+                    mainFrameReadySession = null
                     clusterSurface?.let { sink?.clearSurface(SCREEN_TYPE_ALT, it) }
                     clearIphoneCornerMask()
                     CarPlayBackgroundSession.active = false
@@ -5589,10 +5595,12 @@ open class CarPlayHostActivity : ComponentActivity() {
         // wheel keys reach the iPhone through it. Restore iOS's captured mask when the controller still
         // owns that live session.
         activeAirPlaySession = snapshot.controller.activeAirPlaySession()
+        mainFrameReadySession = activeAirPlaySession?.takeIf { it.hasRenderedMainFrame }
         ensureClusterPresentation()
         if (blackCornerRadiusDp == CarPlayBlackCornerOverlay.IPHONE_MASK) {
             snapshot.controller.activeIphoneCornerMask()?.let { (session, png, width) ->
                 activeAirPlaySession = session
+                mainFrameReadySession = session.takeIf { it.hasRenderedMainFrame }
                 installIphoneCornerMask(session, png, width)
             }
         }
