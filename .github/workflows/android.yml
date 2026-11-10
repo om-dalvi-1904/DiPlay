@@ -29,7 +29,6 @@ jobs:
           APK=mobile/build/outputs/apk/debug/mobile-debug.apk
           VERIFY=$("$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose "$APK")
           echo "$VERIFY"
-          echo "$VERIFY" | grep -F "Verified using v1 scheme (JAR signing): true"
           echo "$VERIFY" | grep -F "Verified using v2 scheme (APK Signature Scheme v2): true"
           BADGING=$("$ANDROID_HOME/build-tools/36.0.0/aapt" dump badging "$APK")
           echo "$BADGING" | grep -F "sdkVersion:'24'"

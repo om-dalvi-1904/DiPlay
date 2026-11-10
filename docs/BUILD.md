@@ -120,11 +120,12 @@ The Android workflow builds the main debug APK and uploads it as the
 This is the same source-only APK described above: it has the `.hudtest`
 application ID and does not include runtime authentication assets, so it
 cannot establish a standalone CarPlay connection without those assets.
-The workflow verifies APK signatures and confirms the package metadata and
-ARM native libraries before uploading it. If Android still reports that
-the package cannot be parsed, check that the APK file was fully downloaded and
-extracted from the Actions artifact; changing the Android target SDK does not
-repair a truncated or incorrectly downloaded APK.
+The workflow requires a valid v2 APK signature (supported by Android 7.0 and
+newer) and confirms the package metadata and ARM native libraries before
+uploading it. A v1 signature is not required for Android 10/11. If Android
+still reports that the package cannot be parsed, check that the APK file was
+fully downloaded and extracted from the Actions artifact; changing the Android
+target SDK does not repair a truncated or incorrectly downloaded APK.
 
 ## Build a standalone car-test APK
 
